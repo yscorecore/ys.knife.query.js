@@ -1,4 +1,4 @@
-export type ValueType = string | number | boolean | null | string[] | number[];
+export type ValueType = string | number | boolean | null | (string|null)[] | (number|null)[];
 export class Constant {
     constructor(con: ValueType) {
         this.con = con;

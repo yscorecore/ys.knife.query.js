@@ -5,7 +5,7 @@ export enum Operator {
     GreaterThan = ">",
     LessThanOrEqual = "<=",
     LessThan = "<",
-    GreaterThanOrEqual = ">",
+    GreaterThanOrEqual = ">=",
     Between = "between",
     NotBetween = "not between",
     In = "in",
@@ -17,7 +17,7 @@ export enum Operator {
     Contains = "contains",
     NotContains = "not contains",
 }
-export enum CombinSymbol {
+export enum CombinType {
     AndItems = 1,
     OrItems = 2,
     SingleItem = 0,
@@ -27,44 +27,44 @@ export class FilterInfo {
     static readonly Operator_And = "and";
     static readonly Operator_Or = "or";
 
-    public Left: ConstantOrExpression | null | undefined;
-    public Right: ConstantOrExpression | null | undefined;
-    public Operator: Operator | null | undefined;
-    public CombinType: CombinSymbol;
-    public Items: FilterInfo[] = [];
+    protected left: ConstantOrExpression | null | undefined;
+    protected right: ConstantOrExpression | null | undefined;
+    protected op: Operator | null | undefined;
+    protected combinType: CombinType;
+    protected items: FilterInfo[] = [];
 
-    constructor(left: ConstantOrExpression | null, op: Operator | null, right: ConstantOrExpression | null, combinType: CombinSymbol = CombinSymbol.SingleItem, items: FilterInfo[] = []) {
-        this.Left = left;
-        this.Right = right;
-        this.Operator = op;
-        this.CombinType = combinType;
-        this.Items = items;
+    constructor(left: ConstantOrExpression | null, op: Operator | null, right: ConstantOrExpression | null, combinType: CombinType = CombinType.SingleItem, items: FilterInfo[] = []) {
+        this.left = left;
+        this.right = right;
+        this.op = op;
+        this.combinType = combinType;
+        this.items = items;
     }
 
 
     toString(): string {
-        switch (this.CombinType) {
-            case CombinSymbol.AndItems:
-                return this.Items.filter(item => item !== null)
+        switch (this.combinType) {
+            case CombinType.AndItems:
+                return this.items.filter(item => item !== null)
                     .map(item => `(${item.toString()})`)
                     .join(` ${FilterInfo.Operator_And} `);
-            case CombinSymbol.OrItems:
-                return this.Items.filter(item => item !== null)
+            case CombinType.OrItems:
+                return this.items.filter(item => item !== null)
                     .map(item => `(${item.toString()})`)
                     .join(` ${FilterInfo.Operator_Or} `);
             default:
-                return `${this.Left} ${this.Operator} ${this.Right}`;
+                return `${this.left} ${this.op} ${this.right}`;
         }
     }
 
 
     public andAlso(other: FilterInfo): FilterInfo {
-        if (this.CombinType == CombinSymbol.AndItems) {
-            if (other.CombinType == CombinSymbol.AndItems) {
-                this.Items = this.Items.concat(other.Items);
+        if (this.combinType == CombinType.AndItems) {
+            if (other.combinType == CombinType.AndItems) {
+                this.items = this.items.concat(other.items);
             }
             else {
-                this.Items.push(other)
+                this.items.push(other)
             }
             return this;
         }
@@ -74,12 +74,12 @@ export class FilterInfo {
     }
 
     public orElse(other: FilterInfo): FilterInfo {
-        if (this.CombinType == CombinSymbol.OrItems) {
-            if (other.CombinType == CombinSymbol.OrItems) {
-                this.Items = this.Items.concat(other.Items);
+        if (this.combinType == CombinType.OrItems) {
+            if (other.combinType == CombinType.OrItems) {
+                this.items = this.items.concat(other.items);
             }
             else {
-                this.Items.push(other);
+                this.items.push(other);
             }
             return this;
         }
@@ -89,48 +89,48 @@ export class FilterInfo {
     }
 
     public static createOr(...items: FilterInfo[]): FilterInfo {
-        return new FilterInfo(null, Operator.Equals, null, CombinSymbol.OrItems, items);
+        return new FilterInfo(null, null, null, CombinType.OrItems, items);
     }
     public static createAnd(...items: FilterInfo[]): FilterInfo {
-        return new FilterInfo(null, Operator.Equals, null, CombinSymbol.AndItems, items);
+        return new FilterInfo(null, null, null, CombinType.AndItems, items);
     }
 
 }
 
 
 export class FilterInfoOf<T> extends FilterInfo {
-    constructor(left: DeepKeysOrConstantOrExpression<T> | null, op: Operator | null, right: DeepKeysOrConstantOrExpression<T> | null, combinType: CombinSymbol = CombinSymbol.SingleItem, items: FilterInfo[] = []) {
+    constructor(left: DeepKeysOrConstantOrExpression<T> | null, op: Operator | null, right: DeepKeysOrConstantOrExpression<T> | null, combinType: CombinType = CombinType.SingleItem, items: FilterInfo[] = []) {
         super(toValueExp(left), op, toValueExp(right), combinType, items);
     }
 
     public and(left: DeepKeysOrConstantOrExpression<T>, op: Operator, right: DeepKeysOrConstantOrExpression<T>): FilterInfoOf<T> {
         const other = new FilterInfoOf<T>(left, op, right);
-        if (this.CombinType == CombinSymbol.AndItems) {
-            if (other.CombinType == CombinSymbol.AndItems) {
-                this.Items = this.Items.concat(other.Items);
+        if (this.combinType == CombinType.AndItems) {
+            if (other.combinType == CombinType.AndItems) {
+                this.items = this.items.concat(other.items);
             }
             else {
-                this.Items.push(other)
+                this.items.push(other)
             }
             return this;
         }
         else {
-            return new FilterInfoOf<T>(null, null, null, CombinSymbol.AndItems, [this, other]);
+            return new FilterInfoOf<T>(null, null, null, CombinType.AndItems, [this, other]);
         }
     }
     public or(left: DeepKeysOrConstantOrExpression<T>, op: Operator, right: DeepKeysOrConstantOrExpression<T>): FilterInfoOf<T> {
         const other = new FilterInfoOf<T>(left, op, right);
-        if (this.CombinType == CombinSymbol.OrItems) {
-            if (other.CombinType == CombinSymbol.OrItems) {
-                this.Items = this.Items.concat(other.Items);
+        if (this.combinType == CombinType.OrItems) {
+            if (other.combinType == CombinType.OrItems) {
+                this.items = this.items.concat(other.items);
             }
             else {
-                this.Items.push(other);
+                this.items.push(other);
             }
             return this;
         }
         else {
-            return new FilterInfoOf<T>(null, null, null, CombinSymbol.OrItems, [this, other]);
+            return new FilterInfoOf<T>(null, null, null, CombinType.OrItems, [this, other]);
         }
     }
 }

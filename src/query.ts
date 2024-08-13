@@ -1,8 +1,8 @@
-import { AggInfo } from "./agg";
+import { AggInfo, AggItem, AggType } from "./agg";
 import { FilterInfo, Operator } from "./filter";
-import { OrderByInfo, OrderByType } from "./orderby";
+import { OrderByInfo, OrderByItem, OrderByType } from "./orderby";
 import { SelectInfo } from "./select";
-import { DeepKeys, DeepKeysOrConstantOrExpression } from "./type";
+import { DeepKeys, DeepKeysOrConstantOrExpression, DeepKeysOrExpression, toExp, toValueExp } from "./type";
 import config from "./default"
 
 export interface Query {
@@ -16,37 +16,46 @@ export interface Query {
 
 export class QueryBuilder {
 
-    private filterInfo: FilterInfo | undefined;
-    private orderByInfo: OrderByInfo | undefined;
-    private selectInfo: SelectInfo | undefined;
-    private agg: AggInfo | undefined;
-    private _limit: number = config.limit;
-    private _offset: number = 0;
+    protected _filterInfo?: FilterInfo;
+    protected _orderByInfo?: OrderByInfo;
+    protected _selectInfo?: SelectInfo;
+    protected _aggInfo?: AggInfo;
+    protected _limit: number = config.limit;
+    protected _offset: number = 0;
 
     public build(): Query {
-        return {
-            select: this.selectInfo?.toString(),
-            filter: this.filterInfo?.toString(),
-            orderBy: this.orderByInfo?.toString(),
-            agg: this.agg?.toString(),
+        const res: Query = {
             limit: this._limit,
             offset: this._offset
         };
+        if (this._filterInfo) {
+            res.filter = this._filterInfo.toString();
+        }
+        if (this._orderByInfo) {
+            res.orderBy = this._orderByInfo.toString();
+        }
+        if (this._selectInfo) {
+            res.select = this._selectInfo.toString();
+        }
+        if (this._aggInfo) {
+            res.agg = this._aggInfo.toString();
+        }
+        return res;
     }
     public withAgg(agg: AggInfo): QueryBuilder {
-        this.agg = agg;
+        this._aggInfo = agg;
         return this;
     }
     public withFilter(filter: FilterInfo): QueryBuilder {
-        this.filterInfo = filter;
+        this._filterInfo = filter;
         return this;
     }
     public withOrderBy(orderby: OrderByInfo): QueryBuilder {
-        this.orderByInfo = orderby;
+        this._orderByInfo = orderby;
         return this;
     }
     public withSelect(select: SelectInfo): QueryBuilder {
-        this.selectInfo = select;
+        this._selectInfo = select;
         return this;
     }
     public offset(offset: number): QueryBuilder {
@@ -62,10 +71,38 @@ export class QueryBuilder {
 export class QueryBuilderOf<T> extends QueryBuilder {
 
     public where(left: DeepKeysOrConstantOrExpression<T>, op: Operator = Operator.Equals, right: DeepKeysOrConstantOrExpression<T>): QueryBuilderOf<T> {
+        if (this._filterInfo) {
+            this._filterInfo.andAlso(new FilterInfo(toValueExp(left), op, toValueExp(right)));
+        } else {
+            this._filterInfo = new FilterInfo(toValueExp(left), op, toValueExp(right));
+        }
         return this;
     }
 
-    public orderby(path: DeepKeys<T>, type: OrderByType = OrderByType.Asc): QueryBuilderOf<T> {
+    public orderby(path: DeepKeysOrExpression<T>, type: OrderByType = OrderByType.Asc): QueryBuilderOf<T> {
+        this._orderByInfo = new OrderByInfo(new OrderByItem(toExp(path), type));
+        return this;
+    }
+    public orderbyDesc(path: DeepKeysOrExpression<T>): QueryBuilderOf<T> {
+        return this.orderby(path, OrderByType.Desc);
+    }
+    public thenby(path: DeepKeysOrExpression<T>, type: OrderByType = OrderByType.Asc): QueryBuilderOf<T> {
+        if (this._orderByInfo) {
+            this._orderByInfo.add(toExp(path), type);
+        } else {
+            this._orderByInfo = new OrderByInfo(new OrderByItem(toExp(path), type));
+        }
+        return this;
+    }
+    public thenbyDesc(path: DeepKeysOrExpression<T>): QueryBuilderOf<T> {
+        return this.thenby(path);
+    }
+    public agg(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null): QueryBuilderOf<T> {
+        if (this._aggInfo) {
+            this._aggInfo.append(path, type, name);
+        } else {
+            this._aggInfo = new AggInfo(new AggItem(path, type, name));
+        }
         return this;
     }
 }

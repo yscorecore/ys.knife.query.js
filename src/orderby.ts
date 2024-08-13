@@ -1,4 +1,4 @@
-import { DeepKeys, DeepKeysOrExpression, toExp } from "./type";
+import { DeepKeysOrExpression, toExp } from "./type";
 import { Expression } from "./expression";
 
 export enum OrderByType {
@@ -6,34 +6,34 @@ export enum OrderByType {
     Desc = 'desc()'
 }
 export class OrderByItem {
-    public Path: Expression;
-    public OrderByType: OrderByType;
+    protected path: Expression;
+    protected type: OrderByType;
 
     constructor(path: Expression, type: OrderByType) {
-        this.Path = path;
-        this.OrderByType = type;
+        this.path = path;
+        this.type = type;
     }
     public toString(): string {
-        return `${this.Path}.${this.OrderByType.toString()}`;
+        return `${this.path}.${this.type.toString()}`;
     }
 }
 
 export class OrderByInfo {
-    public Items: OrderByItem[] = [];
+    public items: OrderByItem[] = [];
 
     constructor(...orderbyItems: OrderByItem[]) {
-        this.Items.push(...(orderbyItems.filter(item => item !== null)));
+        this.items.push(...(orderbyItems.filter(item => item !== null)));
     }
 
     public toString(): string {
-        if (this.Items.length === 0) return '';
-        return this.Items
+        if (this.items.length === 0) return '';
+        return this.items
             .filter(item => item !== null)
             .map(item => item.toString())
             .join(',');
     }
     public add(path: Expression, type: OrderByType = OrderByType.Asc): OrderByInfo {
-        this.Items.push(new OrderByItem(path, type));
+        this.items.push(new OrderByItem(path, type));
         return this;
     }
 }

@@ -9,9 +9,9 @@ export enum AggType {
     DistinctCount = "distinctcount()"
 }
 export class AggItem {
-    public type: AggType;
-    public path: string;
-    public name: string | null;
+    protected type: AggType;
+    protected path: string;
+    protected name: string | null;
     constructor(path: string, type: AggType, name: string | null) {
         this.path = path;
         this.type = type;
@@ -27,7 +27,10 @@ export class AggItem {
 }
 
 export class AggInfo {
-    public items: AggItem[] = [];
+    protected items: AggItem[] = [];
+    constructor(...aggItems: AggItem[]) {
+        this.items.push(...(aggItems.filter(item => item !== null)));
+    }
     append(path: string, type: AggType = AggType.Sum, name: string | null = null): AggInfo {
         this.items.push(new AggItem(path, type, name));
         return this;
