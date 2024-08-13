@@ -16,7 +16,5 @@ test('order by', () => {
   expect(OrderByInfo.create(path<User>("age")).toString()).toBe("age.asc()");
 });
 
-test('order by2', () => {
-  expect(OrderByInfo.create2<User>("name").then.toString()).toBe("a.asc()");
-});
+
 

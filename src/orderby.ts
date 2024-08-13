@@ -29,14 +29,15 @@ export class OrderByInfo {
             .map(item => item.toString())
             .join(',');
     }
-    public then(orderbyItem: OrderByItem): OrderByInfo {
-        this.Items.push(orderbyItem);
+    public then(path: string, type: OrderByType = OrderByType.Asc): OrderByInfo {
+        this.Items.push(new OrderByItem(path, type));
         return this;
     }
+    public thenDesc(path: string): OrderByInfo {
+        return this.then(path, OrderByType.Desc);
+    }
+
     public static create(path: string, type: OrderByType = OrderByType.Asc): OrderByInfo {
         return new OrderByInfo(new OrderByItem(path, type));
-    }
-    public static create2<T>(path: keyof T, type: OrderByType = OrderByType.Asc): OrderByInfo {
-        return new OrderByInfo(new OrderByItem(path.toString(), type));
     }
 }
