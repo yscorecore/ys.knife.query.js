@@ -1,69 +1,54 @@
-import { FilterInfo } from "./filter";
-import { LimitInfo } from "./limit";
-import { OrderByInfo } from "./orderby";
 
-export class SelectInfo {
-    public Items: SelectItem[] = [];
+export class SelectItem {
+    private exclude: boolean;
+    private name: string;
 
-    constructor(...selectItems: SelectItem[]) {
-        this.Items.push(...(selectItems.filter(item => item !== null)));
+    constructor(name: string, exclude: boolean = false) {
+        this.name = name;
+        this.exclude = exclude;
     }
 
     public toString(): string {
-        if (this.Items.length === 0) return '';
-        return this.Items
+        return this.exclude ? `-${this.name}` : this.name;
+    }
+
+}
+export class SelectInfo {
+    protected items: SelectItem[] = [];
+
+    constructor(...selectItems: SelectItem[]) {
+        this.items.push(...(selectItems.filter(item => item !== null)));
+    }
+
+    toString(): string {
+        if (this.items.length === 0) return '';
+        return this.items
             .filter(item => item !== null)
             .map(item => item.toString())
             .join(',');
     }
+    public appendItems(...names: SelectItem[]): SelectInfo {
+        if (this.items) {
+            this.items = this.items.concat(names);
+        } else {
+            this.items = names;
+        }
+        return this
+    }
 }
-export class SelectItem {
-    public Name: string;
-    public SubItems: SelectItem[] = [];
-    public CollectionFilter?: FilterInfo;
-    public CollectionOrderBy?: OrderByInfo;
-    public CollectionLimit?: LimitInfo;
 
-    constructor(name: string) {
-        this.Name = name;
+export class SelectInfoOf<T> extends SelectInfo {
+    public include(...names: FieldKeys<T>[]): SelectInfoOf<T> {
+        this.appendItems(...names.map(t => new SelectItem(t.toString())));
+        return this
     }
-
-    public toString(): string {
-        const sb: string[] = [this.Name];
-        
-        // 如果 CollectionFilter, CollectionOrderBy, CollectionLimit 之一不为 null
-        if (this.CollectionFilter || this.CollectionOrderBy || this.CollectionLimit) {
-            sb.push('{');
-            const collectionInfo = [
-                this.limitInfoToString(this.CollectionLimit),
-                this.orderInfoToString(this.CollectionOrderBy),
-                this.filterInfoToString(this.CollectionFilter)
-            ].filter(p => p !== null).join(',');
-            sb.push(collectionInfo);
-            sb.push('}');
-        }
-        
-        // 如果 SubItems 不为空
-        if (this.SubItems.length > 0) {
-            const subItemsString = this.SubItems
-                .filter(p => p !== null)
-                .map(p => p.toString())
-                .join(',');
-            sb.push(`(${subItemsString})`);
-        }
-
-        return sb.join('');
+    public exclude(...names: FieldKeys<T>[]): SelectInfoOf<T> {
+        this.appendItems(...names.map(t => new SelectItem(t.toString(), true)));
+        return this;
     }
+}
+export type FieldKeys<T> = "[default]" | "[complex]" | "[all]" | keyof T;
 
-    private limitInfoToString(limitInfo?: LimitInfo): string | null {
-        return limitInfo ? `limit(${limitInfo})` : null;
-    }
-
-    private orderInfoToString(orderInfo?: OrderByInfo): string | null {
-        return orderInfo ? `orderby(${orderInfo})` : null;
-    }
-
-    private filterInfoToString(filterInfo?: FilterInfo): string | null {
-        return filterInfo ? `where(${filterInfo})` : null;
-    }
+export function select<T>(...names: FieldKeys<T>[]): SelectInfoOf<T> {
+    return new SelectInfoOf<T>().include(...names);
 }

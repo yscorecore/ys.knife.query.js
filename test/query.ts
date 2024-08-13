@@ -42,6 +42,8 @@ const q = query<User>()
     .orderby("name", OrderByType.Desc)
     .agg("age", AggType.Sum)
     .thenby("address.city")
+    .include("[all]")
+    .exclude("email")
     .limit(0)
     .offset(10)
     .build();

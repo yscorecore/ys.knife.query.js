@@ -1,7 +1,7 @@
 import { AggInfo, AggItem, AggType } from "./agg";
 import { FilterInfo, Operator } from "./filter";
 import { OrderByInfo, OrderByItem, OrderByType } from "./orderby";
-import { SelectInfo } from "./select";
+import { FieldKeys, SelectInfo, SelectItem } from "./select";
 import { DeepKeys, DeepKeysOrConstantOrExpression, DeepKeysOrExpression, toExp, toValueExp } from "./type";
 import config from "./default"
 
@@ -102,6 +102,22 @@ export class QueryBuilderOf<T> extends QueryBuilder {
             this._aggInfo.append(path, type, name);
         } else {
             this._aggInfo = new AggInfo(new AggItem(path, type, name));
+        }
+        return this;
+    }
+    public include(...names: FieldKeys<T>[]): QueryBuilderOf<T> {
+        if (this._selectInfo) {
+            this._selectInfo.appendItems(...names.map(t => new SelectItem(t.toString())));
+        } else {
+            this._selectInfo = new SelectInfo(...names.map(t => new SelectItem(t.toString())));
+        }
+        return this;
+    }
+    public exclude(...names: FieldKeys<T>[]): QueryBuilderOf<T> {
+        if (this._selectInfo) {
+            this._selectInfo.appendItems(...names.map(t => new SelectItem(t.toString(), true)));
+        } else {
+            this._selectInfo = new SelectInfo(...names.map(t => new SelectItem(t.toString(), true)));
         }
         return this;
     }
