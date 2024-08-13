@@ -1,5 +1,5 @@
-import { OrderByInfo, OrderByItem, OrderByType, orderby } from "../src/orderby";
-import { path } from "../src/path";
+import { OrderByType, orderby } from "../src/orderby";
+import { exp } from "../src/expression";
 
 interface User {
   name: string;
@@ -24,6 +24,9 @@ describe("order by", () => {
     test("then by desc", () => {
       expect(orderby<any>("abc").thenDesc("b.c.d").toString()).toBe("abc.asc(),b.c.d.desc()");
     });
+    test("by function", () => {
+      expect(orderby<any>("random()").toString()).toBe("random().asc()");
+    });
   });
   describe("strong type", () => {
     test("one", () => {
@@ -37,6 +40,10 @@ describe("order by", () => {
     });
     test("then by desc", () => {
       expect(orderby<User>("name").thenDesc("address.city").toString()).toBe("name.asc(),address.city.desc()");
+    });
+    test("by function", () => {
+      expect(orderby<User>(exp("random()")).toString()).toBe("random().asc()");
+
     });
   });
 

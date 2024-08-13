@@ -1,11 +1,9 @@
 import { AggInfo } from "./agg";
-import { FilterInfo } from "./filter";
-import { ValueType } from "./valuetype"
+import { FilterInfo, Operator } from "./filter";
 import { OrderByInfo, OrderByType } from "./orderby";
 import { SelectInfo } from "./select";
-import { DeepKeys } from "./path";
+import { DeepKeys, DeepKeysOrConstantOrExpression } from "./type";
 import config from "./default"
-import { Operator } from "./operator";
 
 export interface Query {
     filter?: string | null,
@@ -63,14 +61,14 @@ export class QueryBuilder {
 
 export class QueryBuilderOf<T> extends QueryBuilder {
 
-    public where(path: DeepKeys<T>, op: Operator = Operator.Equals, value: ValueType): QueryBuilderOf<T> {
+    public where(left: DeepKeysOrConstantOrExpression<T>, op: Operator = Operator.Equals, right: DeepKeysOrConstantOrExpression<T>): QueryBuilderOf<T> {
         return this;
     }
-    
+
     public orderby(path: DeepKeys<T>, type: OrderByType = OrderByType.Asc): QueryBuilderOf<T> {
         return this;
     }
 }
-export function query<T>(){
+export function query<T>() {
     return new QueryBuilderOf<T>();
 }

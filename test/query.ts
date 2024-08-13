@@ -2,8 +2,8 @@ import { QueryBuilder as QB, Query ,query} from "../src/query";
 import { PagedList } from "../src/pagedlist";
 import { FilterInfo } from "../src/filter";
 import { OrderByInfo } from "../src/orderby";
-import {path} from "../src/path";
-import { Operator } from "../src/operator";
+import {key} from "../src/type";
+import { Operator } from "../src/filter";
 
 interface User {
     name: string;
@@ -35,16 +35,3 @@ async function fetchUser(query: Query): Promise<PagedList<User>> {
     };
 }
 
-
-test('adds 1 + 2 to equal 3', () => {
-    
-    query<any>().where("",Operator.EndsWith,"")
-    .build();
-
-
-    query<User>()
-    .where("name",Operator.Equals,"abc")
-    .where("address",Operator.Equals,"add")
-    
-    .build();
-  });

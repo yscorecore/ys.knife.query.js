@@ -1,14 +1,15 @@
-import { DeepKeys } from "./path";
+import { DeepKeys, DeepKeysOrExpression, toExp } from "./type";
+import { Expression } from "./expression";
 
 export enum OrderByType {
     Asc = 'asc()',
     Desc = 'desc()'
 }
 export class OrderByItem {
-    public Path: string = "";
+    public Path: Expression;
     public OrderByType: OrderByType;
 
-    constructor(path: string, type: OrderByType) {
+    constructor(path: Expression, type: OrderByType) {
         this.Path = path;
         this.OrderByType = type;
     }
@@ -31,27 +32,24 @@ export class OrderByInfo {
             .map(item => item.toString())
             .join(',');
     }
-    public add(path: string, type: OrderByType = OrderByType.Asc): OrderByInfo {
+    public add(path: Expression, type: OrderByType = OrderByType.Asc): OrderByInfo {
         this.Items.push(new OrderByItem(path, type));
         return this;
     }
 }
+// generic
 export class OrderByInfoOf<T> extends OrderByInfo {
-    public then(path: DeepKeys<T>): OrderByInfoOf<T> {
-        this.Items.push(new OrderByItem(path,  OrderByType.Asc));
+    public then(path: DeepKeysOrExpression<T>): OrderByInfoOf<T> {
+        this.add(toExp(path), OrderByType.Asc);
         return this;
     }
-    public thenDesc(path: DeepKeys<T>): OrderByInfoOf<T> {
-        this.Items.push(new OrderByItem(path, OrderByType.Desc));
-        return this;
-    }
-    public add(path: string, type: OrderByType): OrderByInfo {
-        this.Items.push(new OrderByItem(path, type));
+    public thenDesc(path: DeepKeysOrExpression<T>): OrderByInfoOf<T> {
+        this.add(toExp(path), OrderByType.Desc);
         return this;
     }
 }
-export function orderby<T>(path: DeepKeys<T>, type: OrderByType = OrderByType.Asc):OrderByInfoOf<T>{
+export function orderby<T>(path: DeepKeysOrExpression<T>, type: OrderByType = OrderByType.Asc): OrderByInfoOf<T> {
     const info = new OrderByInfoOf<T>();
-    info.add(path,type);
+    info.add(toExp(path), type);
     return info;
 }

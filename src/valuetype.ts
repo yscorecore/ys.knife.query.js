@@ -1,1 +1,0 @@
-export type ValueType = string | number | boolean | null | string[] | number[];
