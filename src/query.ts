@@ -1,5 +1,6 @@
 import { AggInfo } from "./agg";
-import { FilterInfo, ValueType } from "./filter";
+import { FilterInfo } from "./filter";
+import { ValueType } from "./valuetype"
 import { OrderByInfo, OrderByType } from "./orderby";
 import { SelectInfo } from "./select";
 import { DeepKeys } from "./path";
@@ -58,25 +59,18 @@ export class QueryBuilder {
         this._limit = limit;
         return this;
     }
-    public pageSize(pageSize: number): QueryBuilder {
-        return this.limit(pageSize);
-    }
-  
-
-    public static new<T>(): QueryBuilderT<T> {
-        return new QueryBuilderT<T>();
-    }
 }
 
-export class QueryBuilderT<T> extends QueryBuilder {
+export class QueryBuilderOf<T> extends QueryBuilder {
 
-    public where(path: DeepKeys<T>, value: ValueType, op: Operator = Operator.Equals): QueryBuilderT<T> {
+    public where(path: DeepKeys<T>, op: Operator = Operator.Equals, value: ValueType): QueryBuilderOf<T> {
         return this;
     }
-    public orderby(path: DeepKeys<T>, type: OrderByType = OrderByType.Asc): QueryBuilderT<T> {
+    
+    public orderby(path: DeepKeys<T>, type: OrderByType = OrderByType.Asc): QueryBuilderOf<T> {
         return this;
     }
 }
 export function query<T>(){
-    return new QueryBuilderT<T>();
+    return new QueryBuilderOf<T>();
 }

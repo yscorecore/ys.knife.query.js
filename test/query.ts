@@ -37,9 +37,14 @@ async function fetchUser(query: Query): Promise<PagedList<User>> {
 
 
 test('adds 1 + 2 to equal 3', () => {
- 
+    
+    query<any>().where("",Operator.EndsWith,"")
+    .build();
+
+
     query<User>()
-    .where("name",'abc',Operator.Equals)
+    .where("name",Operator.Equals,"abc")
+    .where("address",Operator.Equals,"add")
     
     .build();
   });
