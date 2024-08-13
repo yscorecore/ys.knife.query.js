@@ -27,11 +27,11 @@ export class FilterInfo {
     static readonly Operator_And = "and";
     static readonly Operator_Or = "or";
 
-    protected Left: ConstantOrExpression | null | undefined;
-    protected Right: ConstantOrExpression | null | undefined;
-    protected Operator: Operator | null | undefined;
-    protected CombinType: CombinSymbol;
-    protected Items: FilterInfo[] = [];
+    public Left: ConstantOrExpression | null | undefined;
+    public Right: ConstantOrExpression | null | undefined;
+    public Operator: Operator | null | undefined;
+    public CombinType: CombinSymbol;
+    public Items: FilterInfo[] = [];
 
     constructor(left: ConstantOrExpression | null, op: Operator | null, right: ConstantOrExpression | null, combinType: CombinSymbol = CombinSymbol.SingleItem, items: FilterInfo[] = []) {
         this.Left = left;
