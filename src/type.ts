@@ -18,7 +18,7 @@ export type ConstantOrExpression = Constant | Expression;
 
 export type DeepKeysOrExpression<T> = DeepKeys<T> | Expression;
 
-export type DeepKeysOrConstantOrExpression<T> = DeepKeys<T> | ConstantOrExpression;
+export type DeepKeysOrConstantOrExpression<T> = keyof T| DeepKeys<T> | ConstantOrExpression;
 
 export function key<T>(prop: DeepKeys<T>): string {
     return prop.toString();

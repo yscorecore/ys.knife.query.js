@@ -5,13 +5,18 @@ import { FieldKeys, SelectInfo, SelectItem } from "./select";
 import { DeepKeys, DeepKeysOrConstantOrExpression, DeepKeysOrExpression, toExp, toValueExp } from "./type";
 import config from "./default"
 
-export interface Query {
+export interface ListReq {
     filter?: string | null,
     orderBy?: string | null,
     select?: string | null,
-    agg?: string | null,
     limit?: number,
     offset?: number
+}
+
+export interface Query extends ListReq {
+
+    agg?: string | null,
+
 }
 
 export class QueryBuilder {
