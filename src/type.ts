@@ -18,7 +18,7 @@ export type ConstantOrExpression = Constant | Expression;
 
 export type DeepKeysOrExpression<T> = DeepKeys<T> | Expression;
 
-export type DeepKeysOrConstantOrExpression<T> = keyof T| DeepKeys<T> | ConstantOrExpression;
+export type DeepKeysOrConstantOrExpression<T> = keyof T | DeepKeys<T> | ConstantOrExpression;
 
 export function key<T>(prop: DeepKeys<T>): string {
     return prop.toString();
@@ -39,7 +39,7 @@ export function toValueExp<T>(path: DeepKeysOrConstantOrExpression<T> | null): C
     } else if (path instanceof Constant) {
         return path;
     } else {
-        return new Expression(path);
+        return new Expression(path as string);
     }
 }
 

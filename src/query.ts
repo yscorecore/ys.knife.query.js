@@ -4,20 +4,9 @@ import { OrderByInfo, OrderByItem, OrderByType } from "./orderby";
 import { FieldKeys, SelectInfo, SelectItem } from "./select";
 import { DeepKeys, DeepKeysOrConstantOrExpression, DeepKeysOrExpression, toExp, toValueExp } from "./type";
 import config from "./default"
+import { PageReq } from "./pagedlist";
 
-export interface ListReq {
-    filter?: string | null,
-    orderBy?: string | null,
-    select?: string | null,
-    limit?: number,
-    offset?: number
-}
 
-export interface Query extends ListReq {
-
-    agg?: string | null,
-
-}
 
 export class QueryBuilder {
 
@@ -28,8 +17,8 @@ export class QueryBuilder {
     protected _limit: number = config.limit;
     protected _offset: number = 0;
 
-    public build(): Query {
-        const res: Query = {
+    public build(): PageReq {
+        const res: PageReq = {
             limit: this._limit,
             offset: this._offset
         };
@@ -77,7 +66,7 @@ export class QueryBuilderOf<T> extends QueryBuilder {
 
     public where(left: DeepKeysOrConstantOrExpression<T>, op: Operator = Operator.Equals, right: DeepKeysOrConstantOrExpression<T>): QueryBuilderOf<T> {
         if (this._filterInfo) {
-            this._filterInfo.andAlso(new FilterInfo(toValueExp(left), op, toValueExp(right)));
+            this._filterInfo = this._filterInfo.andAlso(new FilterInfo(toValueExp(left), op, toValueExp(right)));
         } else {
             this._filterInfo = new FilterInfo(toValueExp(left), op, toValueExp(right));
         }
@@ -100,7 +89,7 @@ export class QueryBuilderOf<T> extends QueryBuilder {
         return this;
     }
     public thenbyDesc(path: DeepKeysOrExpression<T>): QueryBuilderOf<T> {
-        return this.thenby(path);
+        return this.thenby(path, OrderByType.Desc);
     }
     public agg(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null): QueryBuilderOf<T> {
         if (this._aggInfo) {

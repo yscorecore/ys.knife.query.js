@@ -1,17 +1,17 @@
-import { PagedList } from "./pagedlist";
-import { ListReq, Query } from "./query";
-import { filter, FilterInfo, Operator } from "./filter"
+import { PagedList, AggResult } from "./pagedlist";
+import { ListReq, PageReq } from "./pagedlist";
+import { filter, FilterInfo, Operator } from "./filter";
 import { con } from "./constant";
 import { AggInfo } from "./agg";
 
-type PageFunc<T> = (req: Query) => Promise<PagedList<T>>;
-type ListFunc<T> = (req: ListReq) => Promise<T[]>;
+type PageFunc<T> = (req: PageReq) => Promise<PagedList<T>>;
 
-interface IdEntity {
+
+export interface IdEntity {
     id: string | number
 }
 
-export async function findBy<T>(func: PageFunc<T>, key: keyof T, val: any): Promise<T | null> {
+export async function findBy<T>(func: PageFunc<T>, key: keyof T, val: string | number | boolean | bigint): Promise<T | null> {
     const res = await func({
         limit: 1,
         offset: 0,
@@ -28,20 +28,22 @@ export async function findById<T extends IdEntity>(func: PageFunc<T>, id: number
 }
 export async function count<T>(func: PageFunc<T>, filter: FilterInfo): Promise<number> {
     const res = await func({
-        limit: 1,
+        limit: 0,
         offset: 0,
         filter: filter?.toString(),
     });
     return res.totalCount;
 }
-export async function asList<T>(func: PageFunc<T>): Promise<T[]> {
-    const res = await func({
-        limit: 1,
-        offset: 0,
-        filter: null,
-    });
+export async function asList<T>(func: PageFunc<T>, listReq: ListReq): Promise<T[]> {
+    const res = await func(listReq);
     return res.items;
 }
-export async function agg<T>(func: PageFunc<T>, agg: AggInfo): Promise<any> {
-    return null
+export async function aggValue<T>(func: PageFunc<T>, agg: AggInfo, filter: FilterInfo | null): Promise<AggResult> {
+    const res = await func({
+        limit: 0,
+        offset: 0,
+        filter: filter?.toString(),
+        agg: agg.toString()
+    });
+    return res.agg as AggResult;
 }
