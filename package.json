@@ -1,19 +1,24 @@
 {
-  "name": "ys.knife.query",
+  "name": "ys.knife.query.js",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "clean": "rimraf dist reports coverage",
     "build": "tsc",
     "test": "jest",
-    "lint": "yarn eslint src/**/*.ts"
+    "lint": "yarn eslint src/**/*.ts",
+    "fix-lint": "yarn eslint src/**/*.ts --fix",
+    "pack": "npm run clean && npm run lint && npm run test && npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yscorecore/ys.knife.query.js.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "ys.knife.query",   "ys.knife.query.js"
+  ],
+  "author": "Pengbo",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/yscorecore/ys.knife.query.js/issues"
@@ -29,9 +34,13 @@
     "globals": "^15.9.0",
     "jest": "^29.7.0",
     "jest-html-reporters": "^3.1.7",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.2.4",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.1.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "files": [
+    "./dist/*"
+  ]
 }
