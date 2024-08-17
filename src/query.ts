@@ -14,7 +14,7 @@ export class QueryBuilder {
     protected _orderByInfo?: OrderByInfo;
     protected _selectInfo?: SelectInfo;
     protected _aggInfo?: AggInfo;
-    protected _limit: number = config.limit;
+    protected _limit: number = config.defaultLimit;
     protected _offset: number = 0;
 
     public build(): PageReq {

@@ -1,3 +1,4 @@
 export default {
-    limit: 10
+    defaultLimit: 10,
+    maxLimit: 1000
 }

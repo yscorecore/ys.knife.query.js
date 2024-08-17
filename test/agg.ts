@@ -1,5 +1,4 @@
-import { AggInfo, AggInfoOf, AggType, agg } from "../src/agg";
-import { exp } from "../src/expression";
+import { AggType, agg } from "../src/agg";
 
 interface User {
     name: string;
