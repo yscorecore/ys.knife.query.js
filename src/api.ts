@@ -42,6 +42,7 @@ export async function asList<T>(func: PageFunc<T>, listReq: ListReq): Promise<T[
 export async function all<T>(func: PageFunc<T>, baseReq: BaseReq, maxPageSize: number = config.maxLimit): Promise<T[]> {
     let resArray: T[] = [];
     let offset = 0;
+    
     while (true) {
         let res = await func({
             ...baseReq,

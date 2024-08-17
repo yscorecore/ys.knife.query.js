@@ -45,7 +45,7 @@ export class AggInfo {
 }
 export class AggInfoOf<T> extends AggInfo {
     append(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null): AggInfoOf<T> {
-        this.items.push(new AggItem(path, type, name));
+        super.append(path,type,name);
         return this;
     }
 }
