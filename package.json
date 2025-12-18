@@ -9,8 +9,7 @@
     "test": "jest",
     "lint": "pnpm eslint src/**/*.ts",
     "fix-lint": "pnpm eslint src/**/*.ts --fix",
-    "pack": "pnpm run clean && pnpm run lint && pnpm run test && pnpm run build",
-    "prepublishOnly": "pnpm run pack",
+    "prepublishOnly": "pnpm run clean && pnpm run lint && pnpm run test && pnpm run build",
     "postversion": "git push && git push --tags"
   },
   "repository": {
