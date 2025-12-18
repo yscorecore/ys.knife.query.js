@@ -4,7 +4,6 @@ export * from "./constant";
 export * from "./default";
 export * from "./expression";
 export * from "./filter";
-export * from "./index";
 export * from "./limit";
 export * from "./orderby";
 export * from "./pagedlist";
