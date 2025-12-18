@@ -1,15 +1,15 @@
 {
   "name": "ys.knife.query.js",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "clean": "rimraf dist reports coverage",
     "build": "tsc",
     "test": "jest",
-    "lint": "yarn eslint src/**/*.ts",
-    "fix-lint": "yarn eslint src/**/*.ts --fix",
-    "pack": "npm run clean && npm run lint && npm run test && npm run build"
+    "lint": "pnpm eslint src/**/*.ts",
+    "fix-lint": "pnpm eslint src/**/*.ts --fix",
+    "pack": "pnpm run clean && pnpm run lint && pnpm run test && pnpm run build"
   },
   "repository": {
     "type": "git",
