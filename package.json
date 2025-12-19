@@ -1,6 +1,6 @@
 {
   "name": "ys.knife.query.js",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "ys.knife.query.js是一个用于构建查询的基础类库，提供了丰富的API用于创建和管理查询表达式",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
