@@ -13,10 +13,11 @@ export interface BaseReq {
     filter?: string | null,
     orderBy?: string | null,
     select?: string | null,
+    distinct?: boolean,
 }
 export interface ListReq extends BaseReq {
-    limit: number,
-    offset: number
+    limit?: number,
+    offset?: number
 }
 export interface PageReq extends ListReq {
     agg?: string | null;

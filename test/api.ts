@@ -43,10 +43,10 @@ const userList: User[] = [
 ];
 function queryUser(req: PageReq): Promise<PagedList<User>> {
     let val: PagedList<User> = {
-        limit: req.limit,
-        offset: req.offset,
-        hasNext: req.offset + req.limit < userList.length,
-        items: userList.slice(req.offset, req.offset + req.limit),
+        limit: req.limit ?? 0,
+        offset: req.offset ?? 0,
+        hasNext: (req.offset ?? 0) + (req.limit ?? 0) < userList.length,
+        items: userList.slice(req.offset ?? 0, (req.offset ?? 0) + (req.limit ?? 0)),
         totalCount: userList.length,
         agg: {}
     }
