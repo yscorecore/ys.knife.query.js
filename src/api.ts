@@ -8,7 +8,7 @@ import config from "./default";
 type PageFunc<T> = (req: PageReq) => Promise<PagedList<T>>;
 type PageFunc2<T> = (offset?: number, limit?: number, agg?: string | null, filter?: string | null, orderBy?: string | null, select?: string | null, distinct?: boolean) => Promise<PagedList<T>>;
 
-export function toPageFunc<T>(func: PageFunc2<T>): PageFunc<T> {
+export function $page<T>(func: PageFunc2<T>): PageFunc<T> {
     return (req: PageReq) => func(req.offset, req.limit, req.agg, req.filter, req.orderBy, req.select, req.distinct);
 }
 
