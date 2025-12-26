@@ -47,7 +47,7 @@ function queryUser(req: PageReq): Promise<PagedList<User>> {
         hasNext: (req.offset ?? 0) + (req.limit ?? 0) < userList.length,
         items: userList.slice(req.offset ?? 0, (req.offset ?? 0) + (req.limit ?? 0)),
         totalCount: userList.length,
-        agg: {}
+        aggs: {}
     }
     return Promise.resolve(val);
 }

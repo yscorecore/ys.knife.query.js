@@ -6,19 +6,19 @@ export interface PagedList<T> {
     offset: number,
     totalCount: number,
     hasNext: boolean,
-    agg?: AggResult,
+    aggs?: AggResult,
     items: T[],
 }
 export interface BaseReq {
-    filter?: string | null,
-    orderBy?: string | null,
-    select?: string | null,
-    distinct?: boolean,
+    filter?: string | null | undefined,
+    orderBy?: string | null | undefined,
+    select?: string | null | undefined,
+    distinct?: boolean | undefined,
 }
 export interface ListReq extends BaseReq {
     limit?: number,
     offset?: number
 }
 export interface PageReq extends ListReq {
-    agg?: string | null;
+    agg?: string | null | undefined,
 }

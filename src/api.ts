@@ -105,7 +105,7 @@ export async function aggValue<T>(func: PageFunc<T>, agg: AggInfo | string, filt
         filter: filter?.toString(),
         agg: agg.toString()
     });
-    return res.agg as AggResult;
+    return res.aggs as AggResult;
 }
 export async function aggProp<T>(func: PageFunc<T>, prop: DeepKeys<T>, aggType: AggType = AggType.Sum, filter?: FilterInfo | string | null): Promise<number> {
     const tempAggKey = "__tg0";
@@ -115,7 +115,7 @@ export async function aggProp<T>(func: PageFunc<T>, prop: DeepKeys<T>, aggType: 
         filter: filter?.toString(),
         agg: agg(prop, aggType, tempAggKey).toString()
     });
-    return Number(res.agg?.[tempAggKey])
+    return Number(res.aggs?.[tempAggKey])
 }
 export async function sumProp<T>(func: PageFunc<T>, prop: DeepKeys<T>, filter?: FilterInfo | string | null): Promise<number> {
     return aggProp(func, prop, AggType.Sum, filter);
