@@ -1,5 +1,4 @@
-import { resolve } from "path";
-import { asList, all, count, findBy, findById, PageReq, PagedList, query, filter, con, Operator, agg, aggValue } from "../src";
+import { asList, loadAll, count, findBy, findById, PageReq, PagedList, query, filter, con, Operator, agg, aggValue } from "../src";
 
 interface User {
     id: number;
@@ -56,15 +55,15 @@ function queryUser(req: PageReq): Promise<PagedList<User>> {
 describe("api", () => {
     describe("any type", () => {
         test("count", async () => {
-            let res = await count(queryUser, filter<any>(con(1), Operator.Equals, con(1)));
+            let res = await count(queryUser, filter<any>(con(1), Operator.Equals, con(1)).toString());
             expect(res).toBe(3);
         })
         test("asList", async () => {
-            let res = await asList(queryUser, query<any>().build());
+            let res = await asList(queryUser);
             expect(res.length).toBe(3);
         })
-        test("all", async () => {
-            let res = await all(queryUser, query<any>().build(), 1);
+        test("loadAll", async () => {
+            let res = await loadAll(queryUser, query<any>().build(), 1);    
             expect(res.length).toBe(3);
         })
         test("findBy", async () => {
@@ -87,11 +86,11 @@ describe("api", () => {
             expect(res).toBe(3);
         })
         test("asList", async () => {
-            let res = await asList(queryUser, query<User>().build());
+            let res = await asList(queryUser);
             expect(res.length).toBe(3);
         })
-        test("all", async () => {
-            let res = await all(queryUser, query<User>().build(), 1);
+        test("loadAll", async () => {
+            let res = await loadAll(queryUser, query<User>().build(), 1);    
             expect(res.length).toBe(3);
         })
         test("findBy", async () => {
