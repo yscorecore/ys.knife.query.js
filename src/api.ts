@@ -1,4 +1,4 @@
-import { PagedList, AggResult, BaseReq ,PageReq} from "./pagedlist";
+import { PagedList, AggResult, BaseReq, PageReq } from "./pagedlist";
 import { filter, FilterInfo, Operator } from "./filter";
 import { con } from "./constant";
 import { AggInfo, AggType, agg } from "./agg";
@@ -78,6 +78,23 @@ export async function asList<T>(func: PageFunc<T>, filter?: FilterInfo | string 
         throw new Error("hasNext is true, asList will lose data.");
     }
     return res.items;
+}
+export function queryPage<T>(func: PageFunc<T>,
+    limit: number = config.defaultLimit,
+    offset: number = 0,
+    filter?: FilterInfo | string | null,
+    orderBy?: OrderByInfo | string | null,
+    select?: SelectInfo | string | null,
+    agg?: AggInfo | string | null,
+): Promise<PagedList<T>> {
+    return func({
+        limit: limit,
+        offset: offset,
+        filter: filter?.toString(),
+        select: select?.toString(),
+        orderBy: orderBy?.toString(),
+        agg: agg?.toString(),
+    });
 }
 
 export async function loadAll<T>(func: PageFunc<T>, baseReq: BaseReq, maxPageSize: number = config.maxLimit): Promise<T[]> {
