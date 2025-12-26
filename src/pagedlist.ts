@@ -6,7 +6,7 @@ export interface PagedList<T> {
     offset: number,
     totalCount: number,
     hasNext: boolean,
-    aggs?: AggResult,
+    aggs?: AggResult | null,
     items: T[],
 }
 export interface BaseReq {
