@@ -3,7 +3,7 @@ import { FilterInfo, Operator } from "./filter";
 import { OrderByInfo, OrderByItem, OrderByType } from "./orderby";
 import { FieldKeys, SelectInfo, SelectItem } from "./select";
 import { DeepKeys, DeepKeysOrConstantOrExpression, DeepKeysOrExpression, toExp, toValueExp } from "./type";
-import config from "./default"
+import { queryConfig } from "./default"
 import { PageReq } from "./pagedlist";
 
 
@@ -14,7 +14,7 @@ export class QueryBuilder {
     protected _orderByInfo?: OrderByInfo;
     protected _selectInfo?: SelectInfo;
     protected _aggInfo?: AggInfo;
-    protected _limit: number = config.defaultLimit;
+    protected _limit: number = queryConfig.defaultLimit;
     protected _offset: number = 0;
 
     public build(): PageReq {

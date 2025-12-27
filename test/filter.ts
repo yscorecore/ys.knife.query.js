@@ -93,24 +93,24 @@ describe("filter", () => {
             expect(filter<any>("val", Operator.LessThanOrEqual, con("val1")).toString()).toBe("val <= \"val1\"");
         });
         test("starts with", () => {
-            expect(filter<any>("val", Operator.StartsWith, con("val1")).toString()).toBe("val starts \"val1\"");
+            expect(filter<any>("val", Operator.StartsWith, con("val1")).toString()).toBe("val startswith \"val1\"");
         });
         test("not starts with", () => {
-            expect(filter<any>("val", Operator.NotStartsWith, con("val1")).toString()).toBe("val not starts \"val1\"");
+            expect(filter<any>("val", Operator.NotStartsWith, con("val1")).toString()).toBe("val not_startswith \"val1\"");
         });
         test("ends with", () => {
-            expect(filter<any>("val", Operator.EndsWith, con("val1")).toString()).toBe("val ends \"val1\"");
+            expect(filter<any>("val", Operator.EndsWith, con("val1")).toString()).toBe("val endswith \"val1\"");
         });
 
         test("not ends with", () => {
-            expect(filter<any>("val", Operator.NotEndsWith, con("val1")).toString()).toBe("val not ends \"val1\"");
+            expect(filter<any>("val", Operator.NotEndsWith, con("val1")).toString()).toBe("val not_endswith \"val1\"");
         });
 
         test("contains", () => {
             expect(filter<any>("val", Operator.Contains, con("val1")).toString()).toBe("val contains \"val1\"");
         });
         test("not contains", () => {
-            expect(filter<any>("val", Operator.NotContains, con("val1")).toString()).toBe("val not contains \"val1\"");
+            expect(filter<any>("val", Operator.NotContains, con("val1")).toString()).toBe("val not_contains \"val1\"");
         });
 
         test("in", () => {
@@ -118,7 +118,7 @@ describe("filter", () => {
         });
 
         test("not in", () => {
-            expect(filter<any>("val", Operator.NotIn, con(["val1"])).toString()).toBe("val not in [\"val1\"]");
+            expect(filter<any>("val", Operator.NotIn, con(["val1"])).toString()).toBe("val not_in [\"val1\"]");
         });
 
         test("between", () => {
@@ -126,7 +126,7 @@ describe("filter", () => {
         });
 
         test("not between", () => {
-            expect(filter<any>("val", Operator.NotBetween, con(["val1",null])).toString()).toBe("val not between [\"val1\",null]");
+            expect(filter<any>("val", Operator.NotBetween, con(["val1",null])).toString()).toBe("val not_between [\"val1\",null]");
         });
     });
 });

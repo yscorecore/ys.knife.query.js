@@ -63,7 +63,7 @@ describe("api", () => {
             expect(res.length).toBe(3);
         })
         test("loadAll", async () => {
-            let res = await loadAll(queryUser, query<any>().build(), 1);    
+            let res = await loadAll(queryUser, { maxPageSize: 1 });    
             expect(res.length).toBe(3);
         })
         test("findBy", async () => {
@@ -90,7 +90,7 @@ describe("api", () => {
             expect(res.length).toBe(3);
         })
         test("loadAll", async () => {
-            let res = await loadAll(queryUser, query<User>().build(), 1);    
+            let res = await loadAll(queryUser, query<User>().build());    
             expect(res.length).toBe(3);
         })
         test("findBy", async () => {

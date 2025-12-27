@@ -10,15 +10,15 @@ export interface PagedList<T> {
     items: T[],
 }
 export interface BaseReq {
-    filter?: string | null | undefined,
-    orderBy?: string | null | undefined,
-    select?: string | null | undefined,
-    distinct?: boolean | undefined,
+    filter?: string | null ,
+    orderBy?: string | null ,
+    select?: string | null ,
+    distinct?: boolean ,
 }
 export interface ListReq extends BaseReq {
     limit?: number,
     offset?: number
 }
 export interface PageReq extends ListReq {
-    agg?: string | null | undefined,
+    agg?: string | null ,
 }

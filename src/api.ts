@@ -1,12 +1,12 @@
-import { PagedList, AggResult, BaseReq, PageReq } from "./pagedlist";
+import { PagedList, AggResult, PageReq } from "./pagedlist";
 import { filter, FilterInfo, Operator } from "./filter";
 import { con } from "./constant";
 import { AggInfo, AggType, agg } from "./agg";
-import config from "./default";
+import { queryConfig } from "./default";
 import { SelectInfo } from "./select";
 import { OrderByInfo } from "./orderby";
 import { DeepKeys } from "./type";
-
+import { DataOverflowError } from "./errors";
 export type PageFunc<T> = (req: PageReq) => Promise<PagedList<T>>;
 export type PageFunc2<T> = (offset?: number, limit?: number, agg?: string | null, filter?: string | null, orderBy?: string | null, select?: string | null, distinct?: boolean) => Promise<PagedList<T>>;
 
@@ -52,63 +52,72 @@ export async function distinctCount<T>(func: PageFunc<T>, select: SelectInfo | s
     });
     return res.totalCount;
 }
-export async function distinctList<T>(func: PageFunc<T>, select: SelectInfo | string, filter?: FilterInfo | string | null, orderBy?: OrderByInfo | string | null, maxPageSize: number = config.maxLimit, throwIfOverflow: boolean = true): Promise<T[]> {
+//
+export async function distinctList<T>(func: PageFunc<T>, arg: { select: SelectInfo | string, filter?: FilterInfo | string | null, orderBy?: OrderByInfo | string | null, maxPageSize?: number, throwIfOverflow?: boolean }): Promise<T[]> {
     const res = await func({
-        limit: maxPageSize,
+        limit: arg.maxPageSize ?? queryConfig.maxLimit,
         offset: 0,
-        filter: filter?.toString(),
-        select: select.toString(),
-        orderBy: orderBy?.toString(),
+        filter: arg.filter?.toString(),
+        select: arg.select.toString(),
+        orderBy: arg.orderBy?.toString(),
         distinct: true
     });
-    if (res.hasNext && throwIfOverflow) {
-        throw new Error("hasNext is true, distinctList will lose data.");
+    if (res.hasNext && (arg.throwIfOverflow ?? true)) {
+        throw new DataOverflowError(`The result data of distinctList is lost. Total: ${res.totalCount}, Max page size: ${res.limit}`);
     }
     return res.items;
 }
-export async function asList<T>(func: PageFunc<T>, filter?: FilterInfo | string | null, orderBy?: OrderByInfo | string | null, select?: SelectInfo | string | null, maxPageSize: number = config.defaultLimit, throwIfOverflow: boolean = true): Promise<T[]> {
+export async function asList<T>(func: PageFunc<T>, arg?: { filter?: FilterInfo | string | null, orderBy?: OrderByInfo | string | null, select?: SelectInfo | string | null, maxPageSize?: number, throwIfOverflow?: boolean }): Promise<T[]> {
     const res = await func({
-        limit: maxPageSize,
+        limit: arg?.maxPageSize ?? queryConfig.maxLimit,
         offset: 0,
-        filter: filter?.toString(),
-        select: select?.toString(),
-        orderBy: orderBy?.toString(),
+        filter: arg?.filter?.toString(),
+        select: arg?.select?.toString(),
+        orderBy: arg?.orderBy?.toString(),
     });
-    if (res.hasNext && throwIfOverflow) {
-        throw new Error("hasNext is true, asList will lose data.");
+    if (res.hasNext && (arg?.throwIfOverflow ?? true)) {
+        throw new DataOverflowError(`The result data of asList is lost. Total: ${res.totalCount}, Max page size: ${res.limit}`);
     }
     return res.items;
 }
-export function queryPage<T>(func: PageFunc<T>,
-    limit: number = config.defaultLimit,
-    offset: number = 0,
+export function queryPage<T>(func: PageFunc<T>, arg: {
+    limit?: number,
+    offset?: number,
     filter?: FilterInfo | string | null,
     orderBy?: OrderByInfo | string | null,
     select?: SelectInfo | string | null,
     agg?: AggInfo | string | null,
+    distinct?: boolean
+}
 ): Promise<PagedList<T>> {
     return func({
-        limit: limit,
-        offset: offset,
-        filter: filter?.toString(),
-        select: select?.toString(),
-        orderBy: orderBy?.toString(),
-        agg: agg?.toString(),
+        limit: arg.limit ?? queryConfig.defaultLimit,
+        offset: arg.offset ?? 0,
+        filter: arg.filter?.toString(),
+        select: arg.select?.toString(),
+        orderBy: arg.orderBy?.toString(),
+        agg: arg.agg?.toString(),
+        distinct: arg.distinct,
     });
 }
 
-export async function loadAll<T>(func: PageFunc<T>, baseReq: BaseReq, maxPageSize: number = config.maxLimit): Promise<T[]> {
+export async function loadAll<T>(func: PageFunc<T>, arg?: { filter?: FilterInfo | string | null, orderBy?: OrderByInfo | string | null, select?: SelectInfo | string | null, distinct?: boolean, maxPageSize?: number }): Promise<T[]> {
     let resArray: T[] = [];
     let offset = 0;
-
+    const args = {
+        limit: arg?.maxPageSize ?? queryConfig.maxLimit,
+        filter: arg?.filter?.toString(),
+        select: arg?.select?.toString(),
+        orderBy: arg?.orderBy?.toString(),
+        distinct: arg?.distinct ?? false,
+    }
     while (true) {
         const res = await func({
-            ...baseReq,
-            limit: maxPageSize,
+            ...args,
             offset: offset,
         });
         resArray = resArray.concat(res.items);
-        offset += maxPageSize;
+        offset += args.limit;
         if (res.items.length == 0 || !res.hasNext) {
             break;
         }

@@ -10,3 +10,4 @@ export * from "./pagedlist";
 export * from "./query";
 export * from "./select";
 export * from "./type";
+export * from "./errors";
