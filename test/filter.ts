@@ -1,4 +1,4 @@
-import { filter, Operator } from "../src/filter";
+import { filter, Operator, emptyFilter } from "../src/filter";
 import { exp } from "../src/expression";
 import { con } from "../src/constant";
 
@@ -71,9 +71,59 @@ describe("filter", () => {
             expect(f.toString())
                 .toBe("((name == \"zhang\") or (age != 3)) and (address.city in [\"xian\"]) and (address.city.lower() == address.city)");
         });
-    });
 
-    describe("operators",()=>{
+    });
+    describe("stream call", () => {
+        test("empty", () => {
+            expect(emptyFilter<User>().toString()).toBe("");
+        });
+        test("and other", () => {
+            expect(emptyFilter<User>().and("name",Operator.Equals,con('zhang')).toString()).toBe("name == \"zhang\"");
+        });
+        test("and if true", () => {
+            expect(emptyFilter<User>().andIf(!!1, "name",Operator.Equals,con('zhang')).toString()).toBe("name == \"zhang\"");
+        });
+        test("and if false", () => {
+            expect(emptyFilter<User>().andIf(!!0, "name",Operator.Equals,con('zhang')).toString()).toBe("");
+        });
+        test("and if true two items", () => {
+            expect(emptyFilter<User>()
+            .andIf(!!1, "name",Operator.Equals,con('zhang'))
+            .andIf(!!1, "age",Operator.NotEquals,con(3))
+            .toString()).toBe("(name == \"zhang\") and (age != 3)");
+        });
+        test("and if false and true", () => {
+            expect(emptyFilter<User>()
+            .andIf(!!0, "name",Operator.Equals,con('zhang'))
+            .andIf(!!1, "age",Operator.NotEquals,con(3))
+            .toString()).toBe("age != 3");
+        });
+
+        test("or other", () => {
+            expect(emptyFilter<User>().or("name",Operator.Equals,con('zhang')).toString()).toBe("name == \"zhang\"");
+        });
+
+        test("or if true", () => {
+            expect(emptyFilter<User>().orIf(!!1, "name",Operator.Equals,con('zhang')).toString()).toBe("name == \"zhang\"");
+        });
+        test("or if false", () => {
+            expect(emptyFilter<User>().orIf(!!0, "name",Operator.Equals,con('zhang')).toString()).toBe("");
+        });
+        test("or if true two items", () => {
+            expect(emptyFilter<User>()
+            .orIf(!!1, "name",Operator.Equals,con('zhang'))
+            .orIf(!!1, "age",Operator.NotEquals,con(3))
+            .toString()).toBe("(name == \"zhang\") or (age != 3)");
+        });
+        test("or if false and true", () => {
+            expect(emptyFilter<User>()
+            .orIf(!!0, "name",Operator.Equals,con('zhang'))
+            .orIf(!!1, "age",Operator.NotEquals,con(3))
+            .toString()).toBe("age != 3");
+        });
+
+    });
+    describe("operators", () => {
         test("equals", () => {
             expect(filter<any>("val", Operator.Equals, con("val1")).toString()).toBe("val == \"val1\"");
         });
@@ -122,11 +172,11 @@ describe("filter", () => {
         });
 
         test("between", () => {
-            expect(filter<any>("val", Operator.Between, con(["val1",null])).toString()).toBe("val between [\"val1\",null]");
+            expect(filter<any>("val", Operator.Between, con(["val1", null])).toString()).toBe("val between [\"val1\",null]");
         });
 
         test("not between", () => {
-            expect(filter<any>("val", Operator.NotBetween, con(["val1",null])).toString()).toBe("val not_between [\"val1\",null]");
+            expect(filter<any>("val", Operator.NotBetween, con(["val1", null])).toString()).toBe("val not_between [\"val1\",null]");
         });
     });
 });

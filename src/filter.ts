@@ -1,3 +1,4 @@
+import { con } from "./constant";
 import { DeepKeysOrConstantOrExpression, ConstantOrExpression, toValueExp } from "./type";
 export enum Operator {
     Equals = "==",
@@ -44,16 +45,18 @@ export class FilterInfo {
 
     toString(): string {
         switch (this.combinType) {
-            case CombinType.AndItems:
-                return this.items.filter(item => item !== null)
-                    .map(item => `(${item.toString()})`)
-                    .join(` ${FilterInfo.Operator_And} `);
-            case CombinType.OrItems:
-                return this.items.filter(item => item !== null)
-                    .map(item => `(${item.toString()})`)
-                    .join(` ${FilterInfo.Operator_Or} `);
+            case CombinType.AndItems: {
+                const notNullItems = this.items.filter(item => item && !item.isEmpty());
+                return notNullItems.length === 1 ? `${notNullItems[0].toString()}` :
+                    notNullItems.map(item => `(${item.toString()})`).join(` ${FilterInfo.Operator_And} `);
+            }
+            case CombinType.OrItems: {
+                const notNullItems2 = this.items.filter(item => item && !item.isEmpty());
+                return notNullItems2.length === 1 ? `${notNullItems2[0].toString()}` :
+                    notNullItems2.map(item => `(${item.toString()})`).join(` ${FilterInfo.Operator_Or} `);
+            }
             default:
-                return `${this.left} ${this.op} ${this.right}`;
+                return this.isEmpty() ? "" : `${this.left} ${this.op} ${this.right}`;
         }
     }
 
@@ -94,9 +97,13 @@ export class FilterInfo {
     public static createAnd(...items: FilterInfo[]): FilterInfo {
         return new FilterInfo(null, null, null, CombinType.AndItems, items);
     }
+    public isEmpty(): boolean {
+        return this.combinType == CombinType.SingleItem && this.op == null;
+    }
 
 }
 
+export const empty = new FilterInfo(con(1), Operator.Equals, con(1));
 
 export class FilterInfoOf<T> extends FilterInfo {
     constructor(left: DeepKeysOrConstantOrExpression<T> | null, op: Operator | null, right: DeepKeysOrConstantOrExpression<T> | null, combinType: CombinType = CombinType.SingleItem, items: FilterInfo[] = []) {
@@ -133,8 +140,26 @@ export class FilterInfoOf<T> extends FilterInfo {
             return new FilterInfoOf<T>(null, null, null, CombinType.OrItems, [this, other]);
         }
     }
+    public andIf(condition: boolean, left: DeepKeysOrConstantOrExpression<T>, op: Operator, right: DeepKeysOrConstantOrExpression<T>) {
+        if (condition) {
+            return this.and(left, op, right);
+        }
+        return this;
+    }
+    public orIf(condition: boolean, left: DeepKeysOrConstantOrExpression<T>, op: Operator, right: DeepKeysOrConstantOrExpression<T>) {
+        if (condition) {
+            return this.or(left, op, right);
+        }
+        return this;
+    }
+
+
+
 }
 
 export function filter<T>(left: DeepKeysOrConstantOrExpression<T>, op: Operator, right: DeepKeysOrConstantOrExpression<T>): FilterInfoOf<T> {
     return new FilterInfoOf<T>(left, op, right);
+}
+export function emptyFilter<T>(): FilterInfoOf<T> {
+    return new FilterInfoOf<T>(con(null), null, con(null));
 }
