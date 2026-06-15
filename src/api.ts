@@ -19,6 +19,7 @@ export async function findBy<T>(func: PageFunc<T>, key: keyof T, val: string | n
         limit: 1,
         offset: 0,
         filter: filter<T>(key, Operator.Equals, con(val)).toString(),
+        countAll: false,
     }, signal);
     if (res.items.length > 0) {
         return res.items[0];
@@ -35,8 +36,9 @@ export async function count<T>(func: PageFunc<T>, filter?: FilterInfo | string |
         limit: 0,
         offset: 0,
         filter: filter?.toString(),
+        countAll: true,
     }, signal);
-    return res.totalCount;
+    return res.totalCount ?? 0;
 }
 export async function distinctCount<T>(func: PageFunc<T>, select: SelectInfo | string, filter?: FilterInfo | string | null, signal?: AbortSignal): Promise<number> {
     const res = await func({
@@ -44,9 +46,10 @@ export async function distinctCount<T>(func: PageFunc<T>, select: SelectInfo | s
         offset: 0,
         filter: filter?.toString(),
         select: select.toString(),
-        distinct: true
+        distinct: true,
+        countAll: true,
     }, signal);
-    return res.totalCount;
+    return res.totalCount ?? 0;
 }
 //
 export async function distinctList<T>(func: PageFunc<T>, arg: { select: SelectInfo | string, filter?: FilterInfo | string | null, orderBy?: OrderByInfo | string | null, maxPageSize?: number, throwIfOverflow?: boolean }, signal?: AbortSignal): Promise<T[]> {
@@ -56,10 +59,11 @@ export async function distinctList<T>(func: PageFunc<T>, arg: { select: SelectIn
         filter: arg.filter?.toString(),
         select: arg.select.toString(),
         orderBy: arg.orderBy?.toString(),
-        distinct: true
+        distinct: true,
+        countAll: false,
     }, signal);
     if (res.hasNext && (arg.throwIfOverflow ?? true)) {
-        throw new DataOverflowError(`The result data of distinctList is lost. Total: ${res.totalCount}, Max page size: ${res.limit}`);
+        throw new DataOverflowError(`The result data of distinctList is lost. Total: ${res.totalCount ?? 0}, Max page size: ${res.limit}`);
     }
     return res.items;
 }
@@ -70,9 +74,10 @@ export async function asList<T>(func: PageFunc<T>, arg?: { filter?: FilterInfo |
         filter: arg?.filter?.toString(),
         select: arg?.select?.toString(),
         orderBy: arg?.orderBy?.toString(),
+        countAll: false,
     }, signal);
     if (res.hasNext && (arg?.throwIfOverflow ?? true)) {
-        throw new DataOverflowError(`The result data of asList is lost. Total: ${res.totalCount}, Max page size: ${res.limit}`);
+        throw new DataOverflowError(`The result data of asList is lost. Total: ${res.totalCount ?? 0}, Max page size: ${res.limit}`);
     }
     return res.items;
 }
@@ -83,7 +88,8 @@ export function queryPage<T>(func: PageFunc<T>, arg: {
     orderBy?: OrderByInfo | string | null,
     select?: SelectInfo | string | null,
     agg?: AggInfo | string | null,
-    distinct?: boolean
+    distinct?: boolean,
+    countAll?: boolean,
 }
 ): Promise<PagedList<T>> {
     return func({
@@ -94,6 +100,7 @@ export function queryPage<T>(func: PageFunc<T>, arg: {
         orderBy: arg.orderBy?.toString(),
         agg: arg.agg?.toString(),
         distinct: arg.distinct,
+        countAll: arg.countAll,
     });
 }
 
@@ -106,6 +113,7 @@ export async function loadAll<T>(func: PageFunc<T>, arg?: { filter?: FilterInfo 
         select: arg?.select?.toString(),
         orderBy: arg?.orderBy?.toString(),
         distinct: arg?.distinct ?? false,
+        countAll: false,
     }
     while (true) {
         if (signal?.aborted) {
@@ -128,7 +136,8 @@ export async function aggValue<T>(func: PageFunc<T>, agg: AggInfo | string, filt
         limit: 0,
         offset: 0,
         filter: filter?.toString(),
-        agg: agg.toString()
+        agg: agg.toString(),
+        countAll: false,
     }, signal);
     return res.aggs as AggResult;
 }
@@ -138,7 +147,8 @@ export async function aggProp<T>(func: PageFunc<T>, prop: DeepKeys<T>, aggType: 
         limit: 0,
         offset: 0,
         filter: filter?.toString(),
-        agg: agg(prop, aggType, tempAggKey).toString()
+        agg: agg(prop, aggType, tempAggKey, filter).toString(),
+        countAll: false,
     }, signal);
     return Number(res.aggs?.[tempAggKey])
 }

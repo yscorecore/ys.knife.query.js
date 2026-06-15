@@ -1,27 +1,31 @@
+import { FilterInfo } from "./filter";
 import { DeepKeys } from "./type";
 
 export enum AggType {
-    Sum = "sum()",
-    Min = "min()",
-    Max = "max()",
-    Avg = "avg()",
-    Count = "count()",
-    DistinctCount = "distinctcount()"
+    Sum = "sum",
+    Min = "min",
+    Max = "max",
+    Avg = "avg",
+    Count = "count",
+    DistinctCount = "distinctcount",
 }
 export class AggItem {
     protected type: AggType;
     protected path: string;
     protected name: string | null;
-    constructor(path: string, type: AggType, name: string | null) {
+    protected filter?: FilterInfo | string | null;
+    constructor(path: string, type: AggType, name: string | null = null, filter?: FilterInfo | string | null) {
         this.path = path;
         this.type = type;
         this.name = name;
+        this.filter = filter;
     }
     toString() {
+        let filterStr = this.filter?.toString() ?? '';
         if (this.name) {
-            return `${this.path}.${this.type}.as(${this.name})`;
+            return `${this.path}.${this.type}(${filterStr}).as(${this.name})`;
         } else {
-            return `${this.path}.${this.type}`;
+            return `${this.path}.${this.type}(${filterStr})`;
         }
     }
 }
@@ -31,8 +35,8 @@ export class AggInfo {
     constructor(...aggItems: AggItem[]) {
         this.items.push(...(aggItems.filter(item => item !== null)));
     }
-    append(path: string, type: AggType = AggType.Sum, name: string | null = null): AggInfo {
-        this.items.push(new AggItem(path, type, name));
+    append(path: string, type: AggType = AggType.Sum, name: string | null = null, filter?: FilterInfo | string | null): AggInfo {
+        this.items.push(new AggItem(path, type, name, filter));
         return this;
     }
     toString() {
@@ -44,11 +48,11 @@ export class AggInfo {
     }
 }
 export class AggInfoOf<T> extends AggInfo {
-    append(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null): AggInfoOf<T> {
-        super.append(path,type,name);
+    append(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null, filter?: FilterInfo | string | null): AggInfoOf<T> {
+        super.append(path,type,name,filter);
         return this;
     }
 }
-export function agg<T>(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null): AggInfoOf<T> {
-    return new AggInfoOf<T>().append(path, type, name)
+export function agg<T>(path: DeepKeys<T>, type: AggType = AggType.Sum, name: string | null = null, filter?: FilterInfo | string | null): AggInfoOf<T> {
+    return new AggInfoOf<T>().append(path, type, name, filter)
 }

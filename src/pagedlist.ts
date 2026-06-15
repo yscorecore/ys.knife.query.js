@@ -4,7 +4,7 @@ export interface AggResult {
 export interface PagedList<T> {
     limit: number,
     offset: number,
-    totalCount: number,
+    totalCount?: number | null,
     hasNext: boolean,
     aggs?: AggResult | null,
     items: T[],
@@ -14,6 +14,7 @@ export interface BaseReq {
     orderBy?: string,
     select?: string,
     distinct?: boolean,
+    countAll?: boolean,
 }
 export interface ListReq extends BaseReq {
     limit?: number,
