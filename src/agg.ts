@@ -21,7 +21,7 @@ export class AggItem {
         this.filter = filter;
     }
     toString() {
-        let filterStr = this.filter?.toString() ?? '';
+        const filterStr = this.filter?.toString() ?? '';
         if (this.name) {
             return `${this.path}.${this.type}(${filterStr}).as(${this.name})`;
         } else {
