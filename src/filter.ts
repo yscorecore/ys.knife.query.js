@@ -1,4 +1,4 @@
-import { con } from "./constant";
+import { con, ValueType } from "./constant";
 import { exp } from "./expression";
 import { DeepKeysOrConstantOrExpression, ConstantOrExpression, toValueExp } from "./type";
 export enum Operator {
@@ -27,7 +27,7 @@ export enum CombinType {
 interface SimpleFilterObject {
     name: string,
     op?: Operator | undefined | null,
-    value: any,
+    value: ValueType,
 }
 export class FilterInfo {
     static readonly Operator_And = "and";
@@ -108,7 +108,7 @@ export class FilterInfo {
     public static fromSimpleObject(...obj: SimpleFilterObject[]): FilterInfo {
         return FilterInfo.createAnd(...obj.map(item => new FilterInfo(exp(item.name), item.op ?? Operator.Equals, con(item.value))));
     }
-    public static fromSimpleDictionary(dic: Record<string, any>): FilterInfo {
+    public static fromSimpleDictionary(dic: Record<string, ValueType>): FilterInfo {
         return FilterInfo.fromSimpleObject(...Object.entries(dic).map(([key, value]) => ({ name: key, value })));
     }
 }
