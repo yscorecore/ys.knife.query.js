@@ -1,4 +1,5 @@
 import { con } from "./constant";
+import { exp } from "./expression";
 import { DeepKeysOrConstantOrExpression, ConstantOrExpression, toValueExp } from "./type";
 export enum Operator {
     Equals = "==",
@@ -23,7 +24,11 @@ export enum CombinType {
     OrItems = 2,
     SingleItem = 0,
 }
-
+interface SimpleFilterObject {
+    name: string,
+    op?: Operator | undefined | null,
+    value: any,
+}
 export class FilterInfo {
     static readonly Operator_And = "and";
     static readonly Operator_Or = "or";
@@ -100,7 +105,12 @@ export class FilterInfo {
     public isEmpty(): boolean {
         return this.combinType == CombinType.SingleItem && this.op == null;
     }
-
+    public static fromSimpleObject(...obj: SimpleFilterObject[]): FilterInfo {
+        return FilterInfo.createAnd(...obj.map(item => new FilterInfo(exp(item.name), item.op ?? Operator.Equals, con(item.value))));
+    }
+    public static fromSimpleDictionary(dic: Record<string, any>): FilterInfo {
+        return FilterInfo.fromSimpleObject(...Object.entries(dic).map(([key, value]) => ({ name: key, value })));
+    }
 }
 
 export const empty = new FilterInfo(con(1), Operator.Equals, con(1));
@@ -163,3 +173,4 @@ export function filter<T>(left: DeepKeysOrConstantOrExpression<T>, op: Operator,
 export function emptyFilter<T>(): FilterInfoOf<T> {
     return new FilterInfoOf<T>(con(null), null, con(null));
 }
+

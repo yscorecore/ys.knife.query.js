@@ -1,4 +1,4 @@
-import { filter, Operator, emptyFilter } from "../src/filter";
+import { filter, Operator, emptyFilter, FilterInfo } from "../src/filter";
 import { exp } from "../src/expression";
 import { con } from "../src/constant";
 
@@ -178,5 +178,38 @@ describe("filter", () => {
         test("not between", () => {
             expect(filter<any>("val", Operator.NotBetween, con(["val1", null])).toString()).toBe("val not_between [\"val1\",null]");
         });
+    });
+});
+
+describe("FilterInfo.fromSimpleObject", () => {
+    test("one item default equals", () => {
+        expect(FilterInfo.fromSimpleObject({ name: "age", value: 20 }).toString()).toBe("age == 20");
+    });
+    test("one item with operator", () => {
+        expect(FilterInfo.fromSimpleObject({ name: "age", op: Operator.GreaterThan, value: 18 }).toString()).toBe("age > 18");
+    });
+    test("op null fallback to equals", () => {
+        expect(FilterInfo.fromSimpleObject({ name: "age", op: null, value: 20 }).toString()).toBe("age == 20");
+    });
+    test("two items with and", () => {
+        expect(FilterInfo.fromSimpleObject(
+            { name: "age", op: Operator.GreaterThanOrEqual, value: 18 },
+            { name: "name", value: "tom" },
+        ).toString()).toBe("(age >= 18) and (name == \"tom\")");
+    });
+});
+
+describe("FilterInfo.fromSimpleDictionary", () => {
+    test("empty dictionary", () => {
+        expect(FilterInfo.fromSimpleDictionary({}).toString()).toBe("");
+    });
+    test("one item", () => {
+        expect(FilterInfo.fromSimpleDictionary({ age: 20 }).toString()).toBe("age == 20");
+    });
+    test("two items with and", () => {
+        expect(FilterInfo.fromSimpleDictionary({ age: 20, name: "tom" }).toString()).toBe("(age == 20) and (name == \"tom\")");
+    });
+    test("boolean value", () => {
+        expect(FilterInfo.fromSimpleDictionary({ deleted: false }).toString()).toBe("deleted == false");
     });
 });
